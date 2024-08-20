@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'ionic.conference.app',
-  appName: 'ionic-conference-app',
+  appName: 'sss-trust',
   webDir: 'www',
   bundledWebRuntime: false,
   plugins: {
