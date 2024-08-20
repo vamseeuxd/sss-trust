@@ -1,7 +1,7 @@
 {
   "name": "ionic-conference-app",
   "version": "0.0.0",
-  "description": "Ionic Conference App",
+  "description": "SSS-Trust App",
   "author": "Ionic Team <hi@ionicframework.com>",
   "license": "Apache-2.0",
   "scripts": {
@@ -10,6 +10,7 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint && npm run lint:sass",
+    "deploy": "ng build & firebase deploy",
     "lint:sass": "stylelint \"src/**/*.scss\"",
     "e2e": "ng e2e",
     "cypress:open": "cypress open",

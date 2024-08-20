@@ -40,6 +40,23 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'doctors',
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../doctors-list/doctors-list.module').then(m => m.DoctorsListModule)
+          },
+          {
+            path: 'session/:sessionId',
+            loadChildren: () => import('../session-detail/session-detail.module').then(m => m.SessionDetailModule)
+          },
+          {
+            path: 'speaker-details/:speakerId',
+            loadChildren: () => import('../speaker-detail/speaker-detail.module').then(m => m.SpeakerDetailModule)
+          }
+        ]
+      },
+      {
         path: 'map',
         children: [
           {

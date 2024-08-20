@@ -1,5 +1,14 @@
 {
+  "targets": {
+    "sss-trust": {
+      "hosting": {
+        "sss-trust": [
+          "sss-trust"
+        ]
+      }
+    }
+  },
   "projects": {
-    "default": "ionic-ng-conf-app"
+    "default": "sss-trust"
   }
 }
