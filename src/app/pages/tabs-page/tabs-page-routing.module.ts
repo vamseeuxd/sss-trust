@@ -44,7 +44,7 @@ const routes: Routes = [
         children: [
           {
             path: '',
-            loadChildren: () => import('../doctors-list/doctors-list.module').then(m => m.DoctorsListModule)
+            loadChildren: () => import('../doctors-list/page.module').then(m => m.PageModule)
           },
           {
             path: 'session/:sessionId',

@@ -17,10 +17,10 @@ export interface IDoctor {
 
 @Component({
   selector: "page-doctors-list",
-  templateUrl: "doctors-list.html",
-  styleUrls: ["./doctors-list.scss"],
+  templateUrl: "page.html",
+  styleUrls: ["./page.scss"],
 })
-export class DoctorsListPage {
+export class Page {
   pageTitle = "Doctors";
   editButtonText = "Edit";
   deleteButtonText = "Delete";
@@ -64,7 +64,7 @@ export class DoctorsListPage {
   private static readonly DOCTOR_UPDATED_MESSAGE = "Doctor Updated Successfully";
 
   firestore: AngularFirestore = inject(AngularFirestore);
-  doctorsCollection = this.firestore.collection(DoctorsListPage.DOCTORS_COLLECTION);
+  doctorsCollection = this.firestore.collection(Page.DOCTORS_COLLECTION);
   doctors$ = this.doctorsCollection.valueChanges({ idField: "id" });
   isModalOpen = false;
   isEdit = false;
@@ -87,11 +87,11 @@ export class DoctorsListPage {
 
   async deleteDoctor(doctor: IDoctor, itemOptions: IonItemSliding) {
     const alert = await this.alertController.create({
-      header: DoctorsListPage.DELETE_CONFIRMATION_HEADER,
-      message: DoctorsListPage.DELETE_CONFIRMATION_MESSAGE,
+      header: Page.DELETE_CONFIRMATION_HEADER,
+      message: Page.DELETE_CONFIRMATION_MESSAGE,
       buttons: [
         {
-          text: DoctorsListPage.CANCEL_BUTTON_TEXT,
+          text: Page.CANCEL_BUTTON_TEXT,
           role: "cancel",
           handler: async () => {
             console.log("Alert canceled");
@@ -99,21 +99,21 @@ export class DoctorsListPage {
           },
         },
         {
-          text: DoctorsListPage.CONFIRM_BUTTON_TEXT,
+          text: Page.CONFIRM_BUTTON_TEXT,
           role: "confirm",
           handler: async () => {
-            const loading = await this.loadingCtrl.create({ message: DoctorsListPage.LOADING_DELETE_MESSAGE });
+            const loading = await this.loadingCtrl.create({ message: Page.LOADING_DELETE_MESSAGE });
             await loading.present();
             const doctorId = doctor.id;
             await this.doctorsCollection.doc(doctorId).delete();
             await itemOptions.close();
             const toast = await this.toastController.create({
-              message: DoctorsListPage.DOCTOR_DELETED_MESSAGE,
+              message: Page.DOCTOR_DELETED_MESSAGE,
               swipeGesture: "vertical",
-              icon: DoctorsListPage.SUCCESS_ICON,
-              color: DoctorsListPage.SUCCESS_COLOR,
-              duration: DoctorsListPage.TOAST_DURATION,
-              position: DoctorsListPage.TOAST_POSITION,
+              icon: Page.SUCCESS_ICON,
+              color: Page.SUCCESS_COLOR,
+              duration: Page.TOAST_DURATION,
+              position: Page.TOAST_POSITION,
             });
             await toast.present();
             await loading.dismiss();
@@ -133,8 +133,8 @@ export class DoctorsListPage {
 
   async addDoctor(doctor: NgForm) {
     const loadingMessage = this.isEdit
-      ? DoctorsListPage.LOADING_UPDATE_MESSAGE
-      : DoctorsListPage.LOADING_ADD_MESSAGE;
+      ? Page.LOADING_UPDATE_MESSAGE
+      : Page.LOADING_ADD_MESSAGE;
     const loading = await this.loadingCtrl.create({ message: loadingMessage });
     await loading.present();
     if (this.isEdit) {
@@ -147,15 +147,15 @@ export class DoctorsListPage {
     }
     this.setOpen(false);
     const toastMessage = this.isEdit
-      ? DoctorsListPage.DOCTOR_UPDATED_MESSAGE
-      : DoctorsListPage.DOCTOR_ADDED_MESSAGE;
+      ? Page.DOCTOR_UPDATED_MESSAGE
+      : Page.DOCTOR_ADDED_MESSAGE;
     const toast = await this.toastController.create({
       message: toastMessage,
       swipeGesture: "vertical",
-      icon: DoctorsListPage.SUCCESS_ICON,
-      color: DoctorsListPage.SUCCESS_COLOR,
-      duration: DoctorsListPage.TOAST_DURATION,
-      position: DoctorsListPage.TOAST_POSITION,
+      icon: Page.SUCCESS_ICON,
+      color: Page.SUCCESS_COLOR,
+      duration: Page.TOAST_DURATION,
+      position: Page.TOAST_POSITION,
     });
     await toast.present();
     await loading.dismiss();
