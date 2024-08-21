@@ -10,12 +10,25 @@ import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
+import { AngularFireModule } from '@angular/fire/compat';
+
+const config = {
+  apiKey: "AIzaSyAs3ji2IFZk3HXQcY8I7WFrCy5fyHAChNQ",
+  authDomain: "sss-trust.firebaseapp.com",
+  projectId: "sss-trust",
+  storageBucket: "sss-trust.appspot.com",
+  messagingSenderId: "730544188285",
+  appId: "1:730544188285:web:5544e73aecae48f840fa14",
+  measurementId: "G-YE8C36CWBV"
+};
+
 
 @NgModule({
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    AngularFireModule.initializeApp(config),
     FormsModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
