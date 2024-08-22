@@ -45,14 +45,15 @@ const routes: Routes = [
           {
             path: '',
             loadChildren: () => import('../doctors-list/page.module').then(m => m.PageModule)
-          },
+          }
+        ]
+      },
+      {
+        path: 'patents',
+        children: [
           {
-            path: 'session/:sessionId',
-            loadChildren: () => import('../session-detail/session-detail.module').then(m => m.SessionDetailModule)
-          },
-          {
-            path: 'speaker-details/:speakerId',
-            loadChildren: () => import('../speaker-detail/speaker-detail.module').then(m => m.SpeakerDetailModule)
+            path: '',
+            loadChildren: () => import('../patents-list/page.module').then(m => m.PageModule)
           }
         ]
       },
