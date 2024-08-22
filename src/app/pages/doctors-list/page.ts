@@ -15,65 +15,116 @@ export interface IDoctor {
   specialize: string;
 }
 
+export interface IDynamicFormControl {
+  id: string;
+  type: "number" | "text" | "select" | "multiSelect" | "hidden";
+  required: boolean;
+  label: string;
+  name: string;
+  min?: number;
+  max?: number;
+  options?: { id: string; name: string }[];
+  placeholder: string;
+}
+
 @Component({
   selector: "page-doctors-list",
   templateUrl: "page.html",
   styleUrls: ["./page.scss"],
 })
 export class Page {
-  pageTitle = "Doctors";
-  editButtonText = "Edit";
-  deleteButtonText = "Delete";
-  saveButtonText = "Save";
-  closeButtonText = "Close";
-  modalTitle = "Add New Doctor";
-  isFullscreen = true;
-  iconSize = 24;
-  doctorNameLabel = "Doctor Name";
-  doctorGenderLabel = "Doctor Gender";
-  doctorSpecializationLabel = "Doctor Specialization";
-  doctorIconLabel = "Doctor Icon";
-  doctorNamePlaceholder = "Enter Doctor Name";
-  doctorIconPlaceholder = "Enter Doctor Icon";
-  genderMale = "Male";
-  genderFemale = "Female";
-  modalInitialBreakpoint = 0.75;
-  modalBreakpoints = [0, 0.25, 0.5, 0.75];
-  specializations = [
-    "Gynecologist",
-    "Cardiologist",
-    "Nephrologist",
-    "Ophthalmologist",
-    "Dentist"
-  ];
-
-  private static readonly DOCTORS_COLLECTION = "doctors";
-  private static readonly DELETE_CONFIRMATION_HEADER = "Delete Confirmation";
-  private static readonly DELETE_CONFIRMATION_MESSAGE = "Are you sure! Do you want to delete Doctor?";
-  private static readonly CANCEL_BUTTON_TEXT = "Cancel";
-  private static readonly CONFIRM_BUTTON_TEXT = "OK";
-  private static readonly LOADING_DELETE_MESSAGE = "Please wait Deleting Doctor";
-  private static readonly DOCTOR_DELETED_MESSAGE = "Doctor Deleted Successfully";
-  private static readonly SUCCESS_ICON = "thumbs-up";
-  private static readonly SUCCESS_COLOR = "success";
-  private static readonly TOAST_DURATION = 1500;
-  private static readonly TOAST_POSITION = "bottom";
-  private static readonly LOADING_ADD_MESSAGE = "Please wait Adding Doctor";
-  private static readonly LOADING_UPDATE_MESSAGE = "Please wait Updating Doctor";
-  private static readonly DOCTOR_ADDED_MESSAGE = "Doctor Added Successfully";
-  private static readonly DOCTOR_UPDATED_MESSAGE = "Doctor Updated Successfully";
+  pageConfig: {
+    pageTitle: string;
+    formAddTitle: string;
+    collection: string;
+    loadingDeleteMessage: string;
+    deletedMessage: string;
+    successIcon: string;
+    successColor: string;
+    toastDuration: number;
+    toastPosition: "bottom" | "top" | "middle";
+    loadingAddMessage: string;
+    loadingUpdateMessage: string;
+    addedMessage: string;
+    updatedMessage: string;
+    deleteConfirmationHeader: string;
+    deleteConfirmationMessage: string;
+    formControls: IDynamicFormControl[];
+    formDefaultValues: any;
+  } = {
+    formControls: [
+      {
+        id: "id",
+        type: "hidden",
+        required: true,
+        label: "",
+        name: "id",
+        placeholder: "",
+      },
+      {
+        id: "name",
+        type: "text",
+        required: true,
+        label: "Doctor Name",
+        name: "name",
+        placeholder: "Enter Doctor Name",
+      },
+      {
+        id: "gender",
+        type: "select",
+        required: true,
+        label: "Doctor Gender",
+        name: "gender",
+        placeholder: "Select Doctor Gender",
+        options: [
+          { id: "Male", name: "Male" },
+          { id: "Female", name: "Female" },
+        ],
+      },
+      {
+        id: "specialize",
+        type: "select",
+        required: true,
+        label: "Doctor Specialization",
+        name: "specialize",
+        placeholder: "Select Doctor Specialization",
+        options: [
+          { id: "Gynecologist", name: "Gynecologist" },
+          { id: "Cardiologist", name: "Cardiologist" },
+          { id: "Nephrologist", name: "Nephrologist" },
+          { id: "Ophthalmologist", name: "Ophthalmologist" },
+          { id: "Dentist", name: "Dentist" },
+        ],
+      },
+    ],
+    formDefaultValues: {
+      id: new Date().getTime().toString(),
+      name: "",
+      gender: "",
+      specialize: "",
+    },
+    formAddTitle: "Add New Doctor",
+    pageTitle: "Doctors",
+    collection: "doctors",
+    deleteConfirmationHeader: "Delete Confirmation",
+    deleteConfirmationMessage: "Are you sure! Do you want to delete Doctor?",
+    loadingDeleteMessage: "Please wait Deleting Doctor",
+    deletedMessage: "Doctor Deleted Successfully",
+    successIcon: "thumbs-up",
+    successColor: "success",
+    toastDuration: 1500,
+    toastPosition: "bottom",
+    loadingAddMessage: "Please wait Adding Doctor",
+    loadingUpdateMessage: "Please wait Updating Doctor",
+    addedMessage: "Doctor Added Successfully",
+    updatedMessage: "Doctor Updated Successfully",
+  };
 
   firestore: AngularFirestore = inject(AngularFirestore);
-  doctorsCollection = this.firestore.collection(Page.DOCTORS_COLLECTION);
-  doctors$ = this.doctorsCollection.valueChanges({ idField: "id" });
-  isModalOpen = false;
+  collection = this.firestore.collection(this.pageConfig.collection);
+  items$ = this.collection.valueChanges({ idField: "id" });
+  isModalOpen = true;
   isEdit = false;
-  defaultFormValue: IDoctor = {
-    id: new Date().getTime().toString(),
-    name: "",
-    gender: "",
-    specialize: "",
-  };
 
   setOpen(isOpen: boolean) {
     this.isModalOpen = isOpen;
@@ -85,13 +136,13 @@ export class Page {
     private loadingCtrl: LoadingController
   ) {}
 
-  async deleteDoctor(doctor: IDoctor, itemOptions: IonItemSliding) {
+  async deleteItem(item: IDoctor, itemOptions: IonItemSliding) {
     const alert = await this.alertController.create({
-      header: Page.DELETE_CONFIRMATION_HEADER,
-      message: Page.DELETE_CONFIRMATION_MESSAGE,
+      header: this.pageConfig.deleteConfirmationHeader,
+      message: this.pageConfig.deleteConfirmationMessage,
       buttons: [
         {
-          text: Page.CANCEL_BUTTON_TEXT,
+          text: "Cancel",
           role: "cancel",
           handler: async () => {
             console.log("Alert canceled");
@@ -99,21 +150,23 @@ export class Page {
           },
         },
         {
-          text: Page.CONFIRM_BUTTON_TEXT,
+          text: "Ok",
           role: "confirm",
           handler: async () => {
-            const loading = await this.loadingCtrl.create({ message: Page.LOADING_DELETE_MESSAGE });
+            const loading = await this.loadingCtrl.create({
+              message: this.pageConfig.loadingDeleteMessage,
+            });
             await loading.present();
-            const doctorId = doctor.id;
-            await this.doctorsCollection.doc(doctorId).delete();
+            const itemId = item.id;
+            await this.collection.doc(itemId).delete();
             await itemOptions.close();
             const toast = await this.toastController.create({
-              message: Page.DOCTOR_DELETED_MESSAGE,
+              message: this.pageConfig.deletedMessage,
               swipeGesture: "vertical",
-              icon: Page.SUCCESS_ICON,
-              color: Page.SUCCESS_COLOR,
-              duration: Page.TOAST_DURATION,
-              position: Page.TOAST_POSITION,
+              icon: this.pageConfig.successIcon,
+              color: this.pageConfig.successColor,
+              duration: this.pageConfig.toastDuration,
+              position: this.pageConfig.toastPosition,
             });
             await toast.present();
             await loading.dismiss();
@@ -124,48 +177,48 @@ export class Page {
     await alert.present();
   }
 
-  editDoctor(item: IDoctor, itemOptions: IonItemSliding) {
-    this.defaultFormValue = item;
+  editItem(item: IDoctor, itemOptions: IonItemSliding) {
+    this.pageConfig.formDefaultValues = item;
     this.isEdit = true;
     this.isModalOpen = true;
     itemOptions.close();
   }
 
-  async addDoctor(doctor: NgForm) {
+  async addItem(itemForm: NgForm) {
     const loadingMessage = this.isEdit
-      ? Page.LOADING_UPDATE_MESSAGE
-      : Page.LOADING_ADD_MESSAGE;
+      ? this.pageConfig.loadingUpdateMessage
+      : this.pageConfig.loadingAddMessage;
     const loading = await this.loadingCtrl.create({ message: loadingMessage });
     await loading.present();
     if (this.isEdit) {
-      const doctorId = doctor.value.id;
-      delete doctor.value.id;
-      await this.doctorsCollection.doc(doctorId).update(doctor.value);
+      const itemId = itemForm.value.id;
+      delete itemForm.value.id;
+      await this.collection.doc(itemId).update(itemForm.value);
     } else {
-      delete doctor.value.id;
-      await this.doctorsCollection.add(doctor.value);
+      delete itemForm.value.id;
+      await this.collection.add(itemForm.value);
     }
     this.setOpen(false);
     const toastMessage = this.isEdit
-      ? Page.DOCTOR_UPDATED_MESSAGE
-      : Page.DOCTOR_ADDED_MESSAGE;
+      ? this.pageConfig.updatedMessage
+      : this.pageConfig.addedMessage;
     const toast = await this.toastController.create({
       message: toastMessage,
       swipeGesture: "vertical",
-      icon: Page.SUCCESS_ICON,
-      color: Page.SUCCESS_COLOR,
-      duration: Page.TOAST_DURATION,
-      position: Page.TOAST_POSITION,
+      icon: this.pageConfig.successIcon,
+      color: this.pageConfig.successColor,
+      duration: this.pageConfig.toastDuration,
+      position: this.pageConfig.toastPosition,
     });
     await toast.present();
     await loading.dismiss();
     this.isEdit = false;
-    this.defaultFormValue = {
+    this.pageConfig.formDefaultValues = {
       id: new Date().getTime().toString(),
       name: "",
       gender: "",
       specialize: "",
     };
-    doctor.resetForm(this.defaultFormValue);
+    itemForm.resetForm(this.pageConfig.formDefaultValues);
   }
 }
